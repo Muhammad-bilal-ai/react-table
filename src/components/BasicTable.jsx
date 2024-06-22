@@ -1,20 +1,22 @@
+import { useQuery } from "@tanstack/react-query";
 import {
   useReactTable,
   getCoreRowModel,
   flexRender,
 } from "@tanstack/react-table";
-import { useMemo } from "react";
 import axios from "axios";
 
-export const fetchedUsers = async () => {
+export const Data = async () => {
   const response = await axios.get("https://dummyjson.com/users");
   console.log("DATA--", response.data.users);
   return response.data.users;
 };
 
 export const BasicTable = () => {
-  const data = useMemo(() => fetchedUsers, []);
-
+  const { data, error, isLoading } = useQuery({
+    queryKey: ["users"],
+    queryFn: Data,
+  });
   /**@type import('@tanstack/react-table').columnDef<any> */
   const columns = [
     {
@@ -43,6 +45,9 @@ export const BasicTable = () => {
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
+
+  if (error) return <div>Error: {error.message}</div>;
+  if (isLoading) return <div>Loading...</div>;
 
   return (
     <div>
