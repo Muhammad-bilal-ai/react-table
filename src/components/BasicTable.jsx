@@ -3,6 +3,7 @@ import {
   useReactTable,
   getCoreRowModel,
   flexRender,
+  getPaginationRowModel,
 } from "@tanstack/react-table";
 import axios from "axios";
 
@@ -44,47 +45,78 @@ export const BasicTable = () => {
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
   });
 
   if (error) return <div>Error: {error.message}</div>;
   if (isLoading) return <div>Loading...</div>;
 
   return (
-    <div className="flex justify-center p-4">
-      <table className="min-w-full divide-y divide-gray-200 bg-white">
-        <thead className="bg-sky-700">
-          {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <th
-                  key={header.id}
-                  className="px-4 py-2 text-left text-xs font-medium text-white uppercase tracking-wider"
-                >
-                  {flexRender(
-                    header.column.columnDef.header,
-                    header.getContext()
-                  )}
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
+    <div className="p-4">
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200 bg-white">
+          <thead className="bg-sky-700">
+            {table.getHeaderGroups().map((headerGroup) => (
+              <tr key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <th
+                    key={header.id}
+                    className="px-4 py-2 text-left text-xs font-medium text-white uppercase tracking-wider"
+                  >
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
 
-        <tbody className="bg-white divide-y divide-gray-200">
-          {table.getRowModel().rows.map((row) => (
-            <tr key={row.id} className="hover:bg-gray-100">
-              {row.getVisibleCells().map((cell) => (
-                <td
-                  key={cell.id}
-                  className="px-4 py-2 whitespace-nowrap text-gray-900"
-                >
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {table.getRowModel().rows.map((row) => (
+              <tr key={row.id} className="hover:bg-gray-100">
+                {row.getVisibleCells().map((cell) => (
+                  <td
+                    key={cell.id}
+                    className="px-4 py-2 whitespace-nowrap text-sm text-gray-900"
+                  >
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="flex-justify-center mt-4">
+        <button
+          onClick={() => table.setPageIndex(0)}
+          className="mx-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+        >
+          First Page
+        </button>
+        <button
+          disabled={!table.getCanPreviousPage()}
+          onClick={table.previousPage}
+          className="mx-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+        >
+          Previous Page
+        </button>
+        <button
+          disabled={!table.getCanNextPage()}
+          onClick={table.nextPage}
+          className="mx-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+        >
+          Next Page
+        </button>
+        <button
+          onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+          className="mx-2 px-4 py-2 bg-blue-500 rounded-md text-white hover:bg-blue-600"
+        >
+          Last Page
+        </button>
+      </div>
     </div>
   );
 };
