@@ -1,12 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { ChevronUpIcon, ChevronDownIcon } from "@heroicons/react/solid";
-
 import {
   useReactTable,
   getCoreRowModel,
   flexRender,
   getPaginationRowModel,
   getSortedRowModel,
+  getFilteredRowModel,
 } from "@tanstack/react-table";
 import axios from "axios";
 import { useState } from "react";
@@ -47,6 +46,7 @@ export const BasicTable = () => {
   ];
 
   const [sorting, setSorting] = useState([]);
+  const [filtering, setFiltering] = useState("");
 
   const table = useReactTable({
     data,
@@ -54,18 +54,35 @@ export const BasicTable = () => {
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
     state: {
       sorting: sorting,
+      globalFilter: filtering,
     },
     onSortingChange: setSorting,
+    onGlobalFilterChange: setFiltering,
   });
 
   if (error) return <div>Error: {error.message}</div>;
   if (isLoading) return <div>Loading...</div>;
 
   return (
-    <div className="p-4">
+    <div className="p-4 border-spacing-2 border-cyan-900">
+      <div>
+        <h1 className="px-4 py-4 flex justify-center font-extrabold text-xl">
+          Users List
+        </h1>
+      </div>
       <div className="overflow-x-auto">
+        <div className="flex items-start bg-gray-50 px-4 py-2">
+          <input
+            className="px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            type="text"
+            placeholder="Search here"
+            value={filtering}
+            onChange={(e) => setFiltering(e.target.value)}
+          />
+        </div>
         <table className="min-w-full divide-y divide-gray-200 bg-white">
           <thead className="bg-sky-700">
             {table.getHeaderGroups().map((headerGroup) => (
@@ -107,7 +124,7 @@ export const BasicTable = () => {
           </tbody>
         </table>
       </div>
-      <div className="flex-justify-center mt-4">
+      <div className="flex flex-justify-center mt-4">
         <button
           onClick={() => table.setPageIndex(0)}
           className="mx-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
