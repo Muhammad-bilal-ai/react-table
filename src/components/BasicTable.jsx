@@ -1,11 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
+import { ChevronUpIcon, ChevronDownIcon } from "@heroicons/react/solid";
+
 import {
   useReactTable,
   getCoreRowModel,
   flexRender,
   getPaginationRowModel,
+  getSortedRowModel,
 } from "@tanstack/react-table";
 import axios from "axios";
+import { useState } from "react";
 
 export const Data = async () => {
   const response = await axios.get("https://dummyjson.com/users");
@@ -41,11 +45,19 @@ export const BasicTable = () => {
       accessorKey: "email",
     },
   ];
+
+  const [sorting, setSorting] = useState([]);
+
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    state: {
+      sorting: sorting,
+    },
+    onSortingChange: setSorting,
   });
 
   if (error) return <div>Error: {error.message}</div>;
@@ -60,6 +72,7 @@ export const BasicTable = () => {
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <th
+                    onClick={header.column.getToggleSortingHandler()}
                     key={header.id}
                     className="px-4 py-2 text-left text-xs font-medium text-white uppercase tracking-wider"
                   >
@@ -67,6 +80,11 @@ export const BasicTable = () => {
                       header.column.columnDef.header,
                       header.getContext()
                     )}
+                    {
+                      { asc: " (Asc)", desc: " (Desc)" }[
+                        header.column.getIsSorted() ?? null
+                      ]
+                    }
                   </th>
                 ))}
               </tr>
